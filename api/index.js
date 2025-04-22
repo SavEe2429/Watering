@@ -20,6 +20,7 @@ app.post('/command' , (req , res) => {
     }if(from == "ESP"){
         if(action == 'ON' || action == 'OFF' || action == 'STOP'){
             state = action;
+            lastCommand = state;
             return res.json({success : true ,command : lastCommand});
         }
     }
