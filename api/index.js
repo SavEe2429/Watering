@@ -17,7 +17,7 @@ app.post('/command' , (req , res) => {
             lastCommand = action;
             return res.json({success : true ,command : lastCommand});
         }
-    }if(from == "esp"){
+    }if(from == "ESP"){
         if(action == 'ON' || action == 'OFF' || action == 'STOP'){
             state = action;
             return res.json({success : true ,command : lastCommand});
