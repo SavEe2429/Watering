@@ -1,7 +1,7 @@
 //Include Library
 #include <Arduino.h>
 #include <ESP8266WiFi.h>
-// #include <LittleFS.h>
+#include <LittleFS.h>
 #include <ESPAsyncTCP.h>
 #include <ESPAsyncWebServer.h>
 
@@ -34,13 +34,26 @@ void ConnectWiFi(){
     Serial.print(WiFi.localIP());
 }
 
-// void EnableLittleFS(){
-//     //Enable LittleFS
-//     if(!LittleFS.begin()){
-//       Serial.println("LittleFS Mount Failed!");
-//       return;
-//     }
-// }
+void EnableLittleFS(){
+    //Enable LittleFS
+    if(!LittleFS.begin()){
+      Serial.println("LittleFS Mount Failed!");
+      return;
+    }
+}
+
+void recentCommand(int Left, int Right) {
+  if (Left == 1 && Right == 0) {
+    digitalWrite(Relay_L, HIGH);
+    digitalWrite(Relay_R, LOW);
+  } else if (Left == 0 && Right == 1) {
+    digitalWrite(Relay_R, HIGH);
+    digitalWrite(Relay_L, LOW);
+  }
+
+  deviceStatus = true;
+}
+
 
 //Void Setup
 void setup()
@@ -49,7 +62,7 @@ void setup()
   Serial.begin(115200);
 
   ConnectWiFi();
-  // EnableLittleFS();
+  EnableLittleFS();
 
 
   //Setup Initial
@@ -61,24 +74,28 @@ void setup()
   digitalWrite(Relay_L,LOW);
 
 
-  // server.serveStatic("/" , LittleFS , "/").setDefaultFile("index.html");
+  server.serveStatic("/" , LittleFS , "/").setDefaultFile("index.html");
 
 
   server.on("/on" , HTTP_GET , [](AsyncWebServerRequest *request){
-    deviceStatus = true;
     String jsonResponse = "{\"status\":\"ON\"}";
     request->send(200 , "application/json" , jsonResponse);
+    recentCommand(1,0);
   });
 
   server.on("/off", HTTP_GET , [](AsyncWebServerRequest *request){
-    deviceStatus = false;
-    String jsonResponse = "{\"status\":\"OFF\"}";
-    request->send(200 , "application/json" , jsonResponse);
+    recentCommand(0,1);
   });
 
-  server.onNotFound([](AsyncWebServerRequest *request){
-    request->redirect("https://google.com");
+
+  server.on("/status" , HTTP_GET , [](AsyncWebServerRequest *request){
+    String jsonResponse = "{\"status\" : \"" + String(deviceStatus ? "เปิด" : "ปิด") + "\"}";
+    Serial.println(jsonResponse); // Debug
+    request->send(200 , "application/json" , jsonResponse);
   });
+  // server.onNotFound([](AsyncWebServerRequest *request){
+  //   request->redirect("https://savee2429.github.io/Watering/");
+  // });
 
   server.begin();
 }
@@ -86,15 +103,37 @@ void setup()
 //Void Loop
 void loop()
 {
-  digitalWrite(Relay_R,HIGH);
+
 
   if(digitalRead(Lim_Switch_L) == LOW && digitalRead(Relay_L) == HIGH){
     Serial.println("IN Left");
+    deviceStatus = false;
+    // String jsonResponse = "{\"Status\" : \"OFF\"}";
+
     digitalWrite(Relay_L, LOW);
   }
+
   if(digitalRead(Lim_Switch_R) == LOW && digitalRead(Relay_R) == HIGH){
     Serial.println("IN Right");
+    deviceStatus = false;
+    // String jsonResponse = "{\"Status\" : \"OFF\"}";
+
     digitalWrite(Relay_R, LOW);
   }
+
+  
+
+  
+
+  Serial.print("Lim_Switch_R : ");
+  Serial.println(digitalRead(Lim_Switch_R));
+  Serial.print("Lim_Switch_L : ");
+  Serial.println(digitalRead(Lim_Switch_L));
+  Serial.print("Relay_R : ");
+  Serial.println(digitalRead(Relay_R));
+  Serial.print("Relay_L : ");
+  Serial.println(digitalRead(Relay_L));
+
+
   delay(1000);
 }

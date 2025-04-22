@@ -1,0 +1,24 @@
+{
+  "name": "watering",
+  "version": "1.0.0",
+  "main": "index.js",
+  "directories": {
+    "lib": "lib",
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SavEe2429/Watering.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/SavEe2429/Watering/issues"
+  },
+  "homepage": "https://github.com/SavEe2429/Watering#readme",
+  "description": ""
+}

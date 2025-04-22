@@ -9,10 +9,11 @@
 </head>
 <body>
     <h1>ESP8266 Web Controller</h1>
-    <button onclick="turnOn()">Turn On</button>
-    <button onclick="turnOff()">Turn Off</button>
+    <button onclick="sendCommand('On')">Turn On</button>
+    <button onclick="sendCommand('OFF')">Turn Off</button>
+    <!-- <button onclick="checkStatus()">Check Status</button> -->
 
-    <p id="status">Device Status : Unknown</p>
+    <p id="status">Loading...</p>
     
 
     <script src="script.js"></script>
