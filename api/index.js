@@ -12,12 +12,12 @@ let state = 'STOP';
 
 app.post('/command' , (req , res) => {
     const {action , from} = req.body;
-    if(from == "web"){
+    if(from == "WEB"){
         if(action == 'ON' || action == 'OFF' || action == 'STOP'){
             lastCommand = action;
             return res.json({success : true ,command : lastCommand});
         }
-    }else if(from == "esp"){
+    }if(from == "esp"){
         if(action == 'ON' || action == 'OFF' || action == 'STOP'){
             state = action;
             return res.json({success : true ,command : lastCommand});

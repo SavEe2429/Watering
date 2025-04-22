@@ -66,6 +66,11 @@ void recentCommand(int Left, int Right)
     digitalWrite(Relay_L, LOW);
     digitalWrite(Relay_R, HIGH);
   }
+  else if (Left == 0 && Right == 0)
+  {
+    digitalWrite(Relay_L, LOW);
+    digitalWrite(Relay_R, LOW);
+  }
 
   deviceStatus = true;
 }
@@ -74,7 +79,7 @@ void changePath(String state)
 {
   http.begin(client, String(serverName) + "/command");
   http.addHeader("Content-Type", "application/json");
-  int httpResponseCode = http.POST("{\"action\": \"" + state + "\" ,\"from\" : \"esp\"}");
+  int httpResponseCode = http.POST("{\"action\": \"" + state + "\" ,\"from\" : \"ESP\"}");
 
   if (httpResponseCode > 0) {
     Serial.print("HTTP Response code: ");
@@ -154,6 +159,10 @@ void loop()
       {
         recentCommand(0, 1);
         changePath("OFF");
+      }
+      else if(response.indexOf("STOP") >= 0){
+        recentCommand(0, 0);
+        changePath("STOP");
       }
 
       if (digitalRead(Lim_Switch_L) == LOW && digitalRead(Relay_L) == HIGH)
