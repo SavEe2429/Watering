@@ -74,7 +74,15 @@ void changePath(String state)
 {
   http.begin(client, String(serverName) + "/command");
   http.addHeader("Content-Type", "application/json");
-  int httpResponseCode = http.POST("{\"action\": \"" + state + "\"}");
+  int httpResponseCode = http.POST("{\"action\": \"" + state + "\" ,\"from\" : \"esp\"}");
+
+  if (httpResponseCode > 0) {
+    Serial.print("HTTP Response code: ");
+    Serial.println(httpResponseCode);
+  } else {
+    Serial.print("Error in HTTP request: ");
+    Serial.println(httpResponseCode);
+  }
 }
 
 // Void Setup
@@ -161,7 +169,7 @@ void loop()
       else
       {
         hasSendPost = false;
-      }
+      } 
 
       if (digitalRead(Lim_Switch_R) == LOW && digitalRead(Relay_R) == HIGH)
       {
