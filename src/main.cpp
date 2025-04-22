@@ -5,7 +5,8 @@
 // #include <ESPAsyncTCP.h>
 // #include <ESPAsyncWebServer.h>
 #include <ESP8266HTTPClient.h>
-#include <WiFiClient.h>
+#include <WiFiClientSecure.h>
+#include <ArduinoJson.h>
 
 // Setup pin
 #define Relay_L D3
@@ -17,11 +18,16 @@
 const char *ssid = "Dounlop ";
 const char *pass = "94502244";
 const char *serverName = "https://watering-9xrq.onrender.com";
-
+static bool hasSendPost = false;
 bool deviceStatus = false;
 
 // Use Server
 //  AsyncWebServer server(80);
+HTTPClient http;
+WiFiClientSecure client;
+
+
+
 
 void ConnectWiFi()
 {
@@ -62,6 +68,13 @@ void recentCommand(int Left, int Right)
   }
 
   deviceStatus = true;
+}
+
+void changePath(String state)
+{
+  http.begin(client, String(serverName) + "/command");
+  http.addHeader("Content-Type", "application/json");
+  int httpResponseCode = http.POST("{\"action\": \"" + state + "\"}");
 }
 
 // Void Setup
@@ -108,48 +121,66 @@ void setup()
 // Void Loop
 void loop()
 {
-
+  client.setInsecure();
   if (WiFi.status() == WL_CONNECTED)
   {
-    HTTPClient http;
-    WiFiClient client;
-    
-    http.begin(client ,String(serverName) + "/command");
+    http.begin(client, String(serverName) + "/recent");
     http.addHeader("Content-Type", "application/json");
 
-    int httpResponseCode = http.POST("{}");
+    int httpResponseCode = http.GET();
+    Serial.print("HTTP_Response : ");
+    Serial.println(httpResponseCode);
 
     if (httpResponseCode >= 0)
     {
       String response = http.getString();
+
       Serial.println("Server Response : " + response);
 
       if (response.indexOf("ON") >= 0)
       {
-        recentCommand(1,0);
+        recentCommand(1, 0);
+        changePath("ON");
       }
       else if (response.indexOf("OFF") >= 0)
       {
-        recentCommand(0,1);
+        recentCommand(0, 1);
+        changePath("OFF");
       }
 
       if (digitalRead(Lim_Switch_L) == LOW && digitalRead(Relay_L) == HIGH)
       {
-        Serial.println("IN Left");
+        if (!hasSendPost)
+        {
+          digitalWrite(Relay_L, LOW);
+          changePath("STOP");
 
-        digitalWrite(Relay_L, LOW);
+          hasSendPost = true;
+        }
+      }
+      else
+      {
+        hasSendPost = false;
       }
 
       if (digitalRead(Lim_Switch_R) == LOW && digitalRead(Relay_R) == HIGH)
       {
-        Serial.println("IN Right");
+        if (!hasSendPost)
+        {
+          digitalWrite(Relay_R, LOW);
+          changePath("STOP");
 
-        digitalWrite(Relay_R, LOW);
+          hasSendPost = true;
+        }
+      }
+      else
+      {
+        hasSendPost = false;
       }
     }
     else
     {
-      Serial.printf("Error: %s\n", http.errorToString(httpResponseCode).c_str());
+      Serial.println("HTTP ERROR " + String(httpResponseCode) + ": " + http.errorToString(httpResponseCode));
     }
     http.end();
   }
@@ -163,5 +194,5 @@ void loop()
   Serial.print("Relay_L : ");
   Serial.println(digitalRead(Relay_L));
 
-  delay(1000);
+  delay(200);
 }
