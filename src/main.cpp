@@ -19,15 +19,14 @@ const char *ssid = "Dounlop ";
 const char *pass = "94502244";
 const char *serverName = "https://watering-9xrq.onrender.com";
 static bool hasSendPost = false;
+static bool hasGet = false;
+int httpResponseCode;
 bool deviceStatus = false;
 
 // Use Server
 //  AsyncWebServer server(80);
 HTTPClient http;
 WiFiClientSecure client;
-
-
-
 
 void ConnectWiFi()
 {
@@ -81,13 +80,19 @@ void changePath(String state)
   http.addHeader("Content-Type", "application/json");
   int httpResponseCode = http.POST("{\"action\": \"" + state + "\" ,\"from\" : \"ESP\"}");
 
-  if (httpResponseCode > 0) {
+  if (httpResponseCode > 0)
+  {
     Serial.print("HTTP Response code: ");
     Serial.println(httpResponseCode);
-  } else {
+  }
+  else
+  {
     Serial.print("Error in HTTP request: ");
     Serial.println(httpResponseCode);
   }
+
+
+  
 }
 
 // Void Setup
@@ -140,30 +145,47 @@ void loop()
     http.begin(client, String(serverName) + "/recent");
     http.addHeader("Content-Type", "application/json");
 
-    int httpResponseCode = http.GET();
+    httpResponseCode = http.GET();
     Serial.print("HTTP_Response : ");
     Serial.println(httpResponseCode);
 
     if (httpResponseCode >= 0)
     {
       String response = http.getString();
-
       Serial.println("Server Response : " + response);
 
-      if (response.indexOf("ON") >= 0)
+      StaticJsonDocument<512> doc;
+      deserializeJson(doc, response);
+      String status = doc["command"];
+      String prev_status = " ";
+
+      if (status != prev_status)
       {
-        recentCommand(1, 0);
-        changePath("ON");
+        if (status == "ON")
+        {
+          recentCommand(1, 0);
+          changePath("ON");
+        }
+        else if (status == "OFF")
+        {
+          recentCommand(0, 1);
+          changePath("OFF");
+        }
+        else if (status == "STOP")
+        {
+          recentCommand(0, 0);
+          changePath("STOP");
+        }
+        prev_status = status;
       }
-      else if (response.indexOf("OFF") >= 0)
+      else if (status == prev_status)
       {
-        recentCommand(0, 1);
-        changePath("OFF");
+        Serial.println("Same Command!!");
       }
-      else if(response.indexOf("STOP") >= 0){
-        recentCommand(0, 0);
-        changePath("STOP");
-      }
+
+      Serial.println(prev_status);
+      Serial.println(status);
+      Serial.println(" ");
 
       if (digitalRead(Lim_Switch_L) == LOW && digitalRead(Relay_L) == HIGH)
       {
@@ -171,14 +193,13 @@ void loop()
         {
           digitalWrite(Relay_L, LOW);
           changePath("STOP");
-
           hasSendPost = true;
         }
       }
       else
       {
         hasSendPost = false;
-      } 
+      }
 
       if (digitalRead(Lim_Switch_R) == LOW && digitalRead(Relay_R) == HIGH)
       {
@@ -186,7 +207,6 @@ void loop()
         {
           digitalWrite(Relay_R, LOW);
           changePath("STOP");
-
           hasSendPost = true;
         }
       }
