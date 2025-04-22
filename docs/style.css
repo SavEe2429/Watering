@@ -15,6 +15,13 @@ button {
     cursor: pointer;
     border-radius: 0.5rem;
     font-size: 1.2rem;
+    margin: 1rem;
+}
+
+.buttom-body {
+    display: grid;
+    justify-self: center;
+
 }
 
 button:hover{

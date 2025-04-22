@@ -11,7 +11,7 @@ let lastCommand = 'OFF';
 
 app.post('/command' , (req , res) => {
     const {action} = req.body;
-    if(action == 'ON' || action == 'OFF'){
+    if(action == 'ON' || action == 'OFF' || action == 'BREAK'){
         lastCommand = action;
         return res.json({success : true ,command : lastCommand});
     }
