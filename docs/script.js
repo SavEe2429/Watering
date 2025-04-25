@@ -38,11 +38,18 @@ async function sendCommand(action , from){
 }
 
 async function updateStatus() {
-    const response = await fetch(`${apiUrl}/showState`);
-    const data = await response.json();
-    document.getElementById('status').textContent = "Device Status : "+ data.command;
-    document.getElementById('dht').textContent = "Temp : "+ data.temperature + "  Humi : " , data.humidity;
+    const responseState = await fetch(`${apiUrl}/showState`);
+    const responseDht = await fetch(`${apiUrl}/showDht`);
+
+    const dataState = await responseState.json();
+    const dataDht = await responseDht.json();
+    
+    document.getElementById('status').textContent = "Device Status : "+ dataState.command;
+    document.getElementById('dht').textContent = "Temp : "+ dataDht.temperature + "  Humi : " , dataDht.humidity;
 }
+
+
+
 
 updateStatus();
 setInterval(updateStatus,3000);
