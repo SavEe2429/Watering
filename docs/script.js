@@ -39,17 +39,13 @@ async function sendCommand(action , from){
 
 async function updateStatus() {
     const responseState = await fetch(`${apiUrl}/showState`);
-    const responseDht = await fetch(`${apiUrl}/showDht`);
+    // const responseDht = await fetch(`${apiUrl}/showDht`);
 
     const dataState = await responseState.json();
-    const dataDht = await responseDht.json();
-
-    if (!responseState.ok || !responseDht.ok) {
-        throw new Error('Failed to fetch state or DHT data');
-    }
+    // const dataDht = await responseDht.json();
 
     document.getElementById('status').textContent = "Device Status : "+ dataState.command;
-    document.getElementById('dht').textContent = "Temp : "+ dataDht.temperature + "  Humi : " + dataDht.humidity;
+    // document.getElementById('dht').textContent = "Temp : "+ dataDht.temperature + "  Humi : " + dataDht.humidity;
 }
 
 

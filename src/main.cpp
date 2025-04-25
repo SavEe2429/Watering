@@ -294,34 +294,37 @@ void loop()
 
       while (LoRa.available())
       {
-        String data = LoRa.readString();
-        // int commaIndex = data.indexOf(',');
+        String rawdata = LoRa.readString();
+        
 
-        Serial.println("Atfer Data: " + data + " , Status: " + status);
-
-        if (data == status || data == "STOP")
+        if (rawdata.startsWith("State"))
         {
-          changePath("/command", data, "");
-          receiveAck = true;
+          String data = rawdata.substring(5);
+          Serial.println("rawdata " + rawdata + " , data: " + data);
+          if (data == status || data == "STOP" )
+          {
+            changePath("/command", data, "");
+            receiveAck = true;
+          }
         }
-
-        // else
-        // {
-        //   temp = data.substring(0, commaIndex);
+        // else if(rawdata.startsWith("DHT")){
+        //   String data = rawdata.substring(3);
+        //   int commaIndex = data.indexOf(',');
+        //   temp = data.substring(0,commaIndex);
         //   hum = data.substring(commaIndex + 1);
-
-        //   changePath("/dhtvalue", hum, temp);
+        //   changePath("/dhtvalue" , hum ,temp);
+        //   Serial.println("rawdata " + rawdata + " , data: " + data);
         // }
+        
       }
     }
   }
 
-  printf("Sendcommand: %s , Resendcommand: %s , ReceiveAck: %s , Prev_Status: %s , Status: %s , temp : %s , hum : %s\n",
-    sendCommand ? "true" : "false",
-    resendCommand ? "true" : "false",
-    receiveAck ? "true" : "false",
-    prev_status.c_str(), status.c_str(), temp, hum);
-
+  printf("Sendcommand: %s , Resendcommand: %s , ReceiveAck: %s , Prev_Status: %s , Status: %s\n",
+         sendCommand ? "true" : "false",
+         resendCommand ? "true" : "false",
+         receiveAck ? "true" : "false",
+         prev_status.c_str(), status.c_str());
 
   // Serial.print("Lim_Switch_R : ");
   // Serial.println(digitalRead(Lim_Switch_R));
