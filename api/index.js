@@ -9,6 +9,8 @@ app.use(cors());
 
 let lastCommand = 'STOP';
 let state = 'STOP';
+let hum ;
+let temp;
 
 app.post('/command', (req, res) => {
     const { action, from } = req.body;
@@ -28,8 +30,8 @@ app.post('/command', (req, res) => {
 });
 
 app.post('/dhtvalue', (req, res) => {
-    const { humidity, temperature } = req.body;
-    if (form == "ESP") {
+    const { humidity, temperature , from} = req.body;
+    if (from == "ESP") {
         hum = humidity;
         temp = temperature;
         return res.json({ success: true, humidity: hum, temperature: temp });
@@ -44,7 +46,7 @@ app.get('/showState', (req, res) => {
     res.json({ command: state });
 });
 
-app.get('showDht', (req, res) => {
+app.get('/showDht', (req, res) => {
     res.json({ temperature: temp, humidity: hum });
 });
 
