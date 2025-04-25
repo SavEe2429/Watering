@@ -33,7 +33,7 @@ async function sendCommand(action , from){
         body:JSON.stringify({action , from})
     });
 
-    const data = await response.json();
+    const dataState = await response.json();
     updateStatus();
 }
 
@@ -43,7 +43,7 @@ async function updateStatus() {
 
     const dataState = await responseState.json();
     const dataDht = await responseDht.json();
-    
+
     document.getElementById('status').textContent = "Device Status : "+ dataState.command;
     document.getElementById('dht').textContent = "Temp : "+ dataDht.temperature + "  Humi : " , dataDht.humidity;
 }
