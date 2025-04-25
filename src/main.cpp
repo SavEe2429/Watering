@@ -20,8 +20,8 @@
 const char *ssid = "Dounlop ";
 const char *pass = "94502244";
 const char *serverName = "https://watering-9xrq.onrender.com";
-static bool hasSendPost = false;
 int httpResponseCode;
+int httpResponseCodeDHT;
 String prev_status = " ";
 
 bool deviceStatus = false;
@@ -97,25 +97,17 @@ void EnableLora()
 //   deviceStatus = true;
 // }
 
-void changePath(String paht ,String value1 , String value2)
+void changePath(String paht, String value1, String value2)
 {
   http.begin(client, String(serverName) + paht);
   http.addHeader("Content-Type", "application/json");
-  if(paht == "/command"){
-    int httpResponseCode = http.POST("{\"action\": \"" + value1 + "\" ,\"from\" : \"ESP\"}");
-  }else if(paht == "/dhtvalue"){
-    int httpResponseCode = http.POST("{\"humidity\": \"" + value1 + "\" ,\"temperature\": \"" + value2 + "\" ,\"from\" : \"ESP\"}");
-  }
-
-  if (httpResponseCode > 0)
+  if (paht == "/command")
   {
-    Serial.print("HTTP Response code: ");
-    Serial.println(httpResponseCode);
+    httpResponseCode = http.POST("{\"action\": \"" + value1 + "\" ,\"from\" : \"ESP\"}");
   }
-  else
+  else if (paht == "/dhtvalue")
   {
-    Serial.print("Error in HTTP request: ");
-    Serial.println(httpResponseCode);
+    httpResponseCodeDHT = http.POST("{\"humidity\": \"" + value1 + "\" ,\"temperature\": \"" + value2 + "\" ,\"from\" : \"ESP\"}");
   }
 }
 
@@ -303,38 +295,33 @@ void loop()
       while (LoRa.available())
       {
         String data = LoRa.readString();
-        int commaIndex = data.indexOf(',');
+        // int commaIndex = data.indexOf(',');
 
         Serial.println("Atfer Data: " + data + " , Status: " + status);
 
-        if (data == status)
+        if (data == status || data == "STOP")
         {
-          changePath("/command" , data , "");
-          receiveAck = true;
-        }
-        else if (data == "STOP")
-        {
-          changePath("/command" ,data , "");
+          changePath("/command", data, "");
           receiveAck = true;
         }
 
-        else {
-          temp = data.substring(0,commaIndex);
-          hum  = data.substring(commaIndex + 1 );
+        // else
+        // {
+        //   temp = data.substring(0, commaIndex);
+        //   hum = data.substring(commaIndex + 1);
 
-          changePath("/dhtvalue" , hum , temp);
-        }
-
-
+        //   changePath("/dhtvalue", hum, temp);
+        // }
       }
     }
   }
 
-  printf("Sendcommand: %s , Resendcommand: %s , ReceiveAck: %s , Prev_Status: %s , Status: %s , temp : %.2f , hum : %.2f\n",
-         sendCommand ? "true" : "false",
-         resendCommand ? "true" : "false",
-         receiveAck ? "true" : "false",
-         prev_status.c_str(), status.c_str(),temp , hum);
+  printf("Sendcommand: %s , Resendcommand: %s , ReceiveAck: %s , Prev_Status: %s , Status: %s , temp : %s , hum : %s\n",
+    sendCommand ? "true" : "false",
+    resendCommand ? "true" : "false",
+    receiveAck ? "true" : "false",
+    prev_status.c_str(), status.c_str(), temp, hum);
+
 
   // Serial.print("Lim_Switch_R : ");
   // Serial.println(digitalRead(Lim_Switch_R));

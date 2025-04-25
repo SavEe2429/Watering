@@ -44,6 +44,10 @@ async function updateStatus() {
     const dataState = await responseState.json();
     const dataDht = await responseDht.json();
 
+    if (!responseState.ok || !responseDht.ok) {
+        throw new Error('Failed to fetch state or DHT data');
+    }
+
     document.getElementById('status').textContent = "Device Status : "+ dataState.command;
     document.getElementById('dht').textContent = "Temp : "+ dataDht.temperature + "  Humi : " + dataDht.humidity;
 }
