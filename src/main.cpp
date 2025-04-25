@@ -322,7 +322,7 @@ void loop()
           temp = data.substring(0,commaIndex);
           hum  = data.substring(commaIndex + 1 );
 
-          changePath("/dhtvalue" , temp , hum);
+          changePath("/dhtvalue" , hum , temp);
         }
 
 
