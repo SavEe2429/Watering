@@ -41,6 +41,7 @@ async function updateStatus() {
     const response = await fetch(`${apiUrl}/showState`);
     const data = await response.json();
     document.getElementById('status').textContent = "Device Status : "+ data.command;
+    document.getElementById('dht').textContent = "Temp : "+ data.temperature + "  Humi : " , data.humidity;
 }
 
 updateStatus();
