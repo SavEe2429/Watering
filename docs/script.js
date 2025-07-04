@@ -24,7 +24,7 @@
 //     })
 // }
 
-const apiUrl = "https://watering-9xrq.onrender.com";
+const apiUrl = "https://watering-1.onrender.com";
 
 async function sendCommand(action , from){
     const response = await fetch(`${apiUrl}/command`,{
